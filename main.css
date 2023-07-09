@@ -1,0 +1,148 @@
+
+/* span { background-color: white; }
+div > span{
+    /* display: inline-block; */
+    /* background-color: blueviolet;
+} */ 
+
+/* Вибір тільки дочірініх вузлів */
+/* .article > p{     
+    color: red;
+} */
+
+/* Вибір  дочірініх вузлів на всіх рівнях */
+/* .article p{     
+    color: red;
+} */
+
+/* div.article > span{
+background-color: blueviolet;
+} */
+
+/* p:first-child{
+    color: blue;
+} */
+
+/* .content span:first-child::after{
+    color: red;
+    content: "trata";
+    font-weight: bold;
+} */
+
+/* h1 + p{
+    color:  red;
+} */
+/* .article > p.pclass{     
+    color: red;
+} */
+
+/* .article > p{
+    color: red;
+} */
+
+/* .article > p:not(.exculde){
+    color: red;
+} */
+
+/* ul#menu li{
+    display: inline;
+    border: 1px solid black;
+} */
+
+/* .container {
+    display: flex;
+    flex-direction: row;
+   
+    justify-content: start;
+    align-items: stretch;
+
+    border: 1px solid red;
+    padding: 5px;
+
+    width: 200px;
+    flex-wrap: wrap;
+}  */
+
+/* .container div{
+    border: 1px solid black;
+    margin-top: 2px;
+    margin: 2px;
+}
+
+div.special{
+     background-color: aqua; 
+    align-self: self-start;
+    flex-grow: 2;
+}
+
+div#one{
+
+
+    flex-basis: 50%;
+}
+
+div#two{
+
+}
+div#three{
+    flex-basis: 100%;
+}  */
+
+
+div.container{
+    display: flex;
+    background-color:aliceblue;
+    color: white;
+    border: 1px solid black;
+    flex-wrap: wrap;/*блоки переносяться*/
+    flex-direction: row;/*вертикальне розміщення*/
+    height: 300px;
+    justify-content: space-around;
+}
+
+.item{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    margin-top: 3px;
+
+}
+.one{
+    flex-basis: 100%;
+    background-color: darkcyan;
+}
+.two{
+    
+    background-color: darkslategray;
+    flex: 0 1 40px;
+}
+.three{
+   
+    background-color: olivedrab;
+    flex: 0 1 100px;
+}
+.four{
+    
+    background-color: rgb(34, 180, 161);
+    flex: 0 1 40px;
+}
+
+.butfirst{
+    background-color: darkkhaki;
+    /* margin-top: 10px; */
+}
+
+.butsecond{
+    background-color: rgb(39, 112, 132);
+    /* margin-top: 10px; */
+}
+#canva{
+    /* background-color: bisque; */
+    border: 1px solid black;
+}
+
+img{
+    display: none;
+}
+
