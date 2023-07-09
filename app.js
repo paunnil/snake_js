@@ -390,69 +390,6 @@ function moveForOnePoint(field, directionForMove) {
     let newPosX = head.x;
     let newPosY = head.y;
 
-
-
-    //визначаємо куди буде рухатись змійка, відповідно
-    //змінюємо x чи y координату
-    // ну і звісно встановлюємо поточний напрямок у той,
-    //який щойно був 
-
-    // const currentTime = Date.now();
-    // if (directionForMove === 'KeyA'){
-    //     if (currentTime - lastKeyPressTime < 999 && previosKey==='KeyA'){//якщо час менше 1 с, і попередня клавіша А
-    //         console.log('repeat A');
-    //         return;
-    //     }
-    //     else{//можна натискати на А
-    //         newPosX = newPosX - 1;
-    //         currentSnakeDirection = 'KeyA';
-    //         previosKey = 'KeyA';
-    //         lastKeyPressTime = currentTime;
-    //     }
-    // }
-    // else 
-    // if (directionForMove === 'KeyW'){
-    //     if (currentTime - lastKeyPressTime < 999 && previosKey==='KeyW'){//якщо час менше 1 с, і попередня клавіша А
-    //         console.log('repeat W');
-    //         return;
-    //     }
-    //     else{//можна натискати на А
-    //         newPosY = newPosY - 1;
-    //         currentSnakeDirection = 'KeyW';
-    //         previosKey = 'KeyW';
-    //         lastKeyPressTime = currentTime;
-    //     }
-
-    // }
-    // else 
-    // if (directionForMove === 'KeyS'){
-    //     if (currentTime - lastKeyPressTime < 999 && previosKey==='KeyS'){//якщо час менше 1 с, і попередня клавіша А
-    //         console.log('repeat S');
-    //         return;
-    //     }
-    //     else{//можна натискати на А
-    //         newPosY = newPosY + 1;
-    //         currentSnakeDirection = 'KeyS';
-    //         previosKey = 'KeyS';
-    //         lastKeyPressTime = currentTime;
-    //     }
-
-    // }
-    // else 
-    // if (directionForMove === 'KeyD'){
-    //     if (currentTime - lastKeyPressTime < 999 && previosKey==='KeyD'){//якщо час менше 1 с, і попередня клавіша А
-    //         console.log('repeat D');
-    //         return;
-    //     }
-    //     else{//можна натискати на А
-    //         newPosX = newPosX + 1;
-    //         currentSnakeDirection = 'KeyD';
-    //         previosKey = 'KeyD';
-    //         lastKeyPressTime = currentTime;
-    //     }
-
-    // }
-
     let previosKey = null;
 
     switch (directionForMove) {
@@ -526,77 +463,156 @@ function moveForOnePoint(field, directionForMove) {
 
 
 
+function move(directionForMove, field) {
+    let newPosX = head.x;
+    let newPosY = head.y;
+    // Виконуємо логіку для натиснутої клавіші
+    switch (directionForMove) {
+        case 'KeyA':
+            // Логіка для клавіші A
+            newPosX = newPosX - 1;
+            currentSnakeDirection = directionForMove;
+            console.log("A");
+            break;
+        case 'KeyW':
+            // Логіка для клавіші W
+            newPosY = newPosY - 1;
+            currentSnakeDirection = directionForMove;
+            console.log("W");
+            break;
+        case 'KeyS':
+            // Логіка для клавіші S
+            newPosY = newPosY + 1;
+            currentSnakeDirection = directionForMove;
+            console.log("S");
+            break;
+        case 'KeyD':
+            // Логіка для клавіші D
+            newPosX = newPosX + 1;
+            currentSnakeDirection = directionForMove;
+            console.log("D");
+            break;
+    }
+    //вернемо індекс точки  у полі, яка співпаде із новою позицією, куди треба переміститись
+    const newIndexInField = field.findIndex(point =>
+        point.x === newPosX && point.y === newPosY
+    );
+
+    gameOverRule(currentSnakeDirection, snakeArray);
+
+    if (newIndexInField !== -1) {//якщо знайдено індекс нової голови?
+        //якщо є яблучко там де маємо поставити нову голову
+        if (field[newIndexInField].value === -1) {
+            field[newIndexInField].value = 1;//можна і без цього, але тоді head.value = -1 - це не важливо бо у fill все рівно перетурться в 1 всі точки у полі як є в іsnakeArra
+            //gameOverRule(currentSnakeDirection,snakeArray);
+            head = field[newIndexInField];//голова буде точкою із яблучком (по факту value голови буде -1, але у функції fill всі значення що snake у field будуть в 1 - нас цікавить по факту x та y)
+            snakeArray.push(head);//додаємо голову до змійки
+            field = fillFieldWithSnakeArray(field, snakeArray);//підчищаємо поле, занулюємо потрібн "пройдені" клітинки
+            field = randomApple(field);
+            appleCountTextBox.value = ++appleCount;
+        }
+        else {// не має яблучка
+            field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
+            head = field[newIndexInField];//ця точка буде головою
+            //зсув змійки
+            snakeArray.push(head);//додали в кінець голову
+            snakeArray.shift();//видалили перший елемент із змійки
+            field = fillFieldWithSnakeArray(field, snakeArray);
+        }
+    }
+    return field;
+
+
+}
+
+
+
+
 function createKeyHandlerForHuman() {
     const keyStates = {};//для збереження часу останнього натискання кожної клавіші
 
-    return function (event) {
+    return function (event, field) {
         const key = event;
+        //let previosKey;
 
         // Якщо клавіша була вже натиснута протягом 1 секунди, ігноруємо її
         if (keyStates[key] && Date.now() - keyStates[key] < 1000) {
-            return;
+            console.log("aaaaaaaaaaaaaaa");
+            currentSnakeDirection = key;
+            return field;
         }
 
         keyStates[key] = Date.now();//записуємо поточний час, як значення властивлсті для кнопки
 
-        let newPosX = head.x;
-        let newPosY = head.y;
+        field = move(key,field);
 
-        // Виконуємо логіку для натиснутої клавіші
-        switch (key) {
-            case 'KeyA':
-                // Логіка для клавіші A
-                newPosX = newPosX - 1;
-                currentSnakeDirection = 'KeyA';
-                console.log("A");
-                break;
-            case 'KeyW':
-                // Логіка для клавіші W
-                newPosY = newPosY - 1;
-                currentSnakeDirection = 'KeyW';
-                console.log("W");
-                break;
-            case 'KeyS':
-                // Логіка для клавіші S
-                newPosY = newPosY + 1;
-                currentSnakeDirection = 'KeyS';
-                console.log("S");
-                break;
-            case 'KeyD':
-                // Логіка для клавіші D
-                newPosX = newPosX + 1;
-                currentSnakeDirection = 'KeyD';
-                console.log("D");
-                break;
-        }
-        //вернемо індекс точки  у полі, яка співпаде із новою позицією, куди треба переміститись
-        const newIndexInField = field.findIndex(point =>
-            point.x === newPosX && point.y === newPosY
-        );
+        // let newPosX = head.x;
+        // let newPosY = head.y;
 
-        gameOverRule(currentSnakeDirection, snakeArray);
+        // // Виконуємо логіку для натиснутої клавіші
+        // switch (key) {
+        //     case 'KeyA':
+        //         // Логіка для клавіші A
+        //         newPosX = newPosX - 1;
+        //         currentSnakeDirection = 'KeyA';
+        //         console.log("A");
+        //         break;
+        //     case 'KeyW':
+        //         // Логіка для клавіші W
+        //         newPosY = newPosY - 1;
+        //         currentSnakeDirection = 'KeyW';
+        //         console.log("W");
+        //         break;
+        //     case 'KeyS':
+        //         // Логіка для клавіші S
+        //         newPosY = newPosY + 1;
+        //         currentSnakeDirection = 'KeyS';
+        //         console.log("S");
+        //         break;
+        //     case 'KeyD':
+        //         // Логіка для клавіші D
+        //         newPosX = newPosX + 1;
+        //         currentSnakeDirection = 'KeyD';
+        //         console.log("D");
+        //         break;
+        // }
 
-        if (newIndexInField !== -1) {//якщо знайдено індекс нової голови?
-            //якщо є яблучко там де маємо поставити нову голову
-            if (field[newIndexInField].value === -1) {
-                field[newIndexInField].value = 1;//можна і без цього, але тоді head.value = -1 - це не важливо бо у fill все рівно перетурться в 1 всі точки у полі як є в іsnakeArra
-                //gameOverRule(currentSnakeDirection,snakeArray);
-                head = field[newIndexInField];//голова буде точкою із яблучком (по факту value голови буде -1, але у функції fill всі значення що snake у field будуть в 1 - нас цікавить по факту x та y)
-                snakeArray.push(head);//додаємо голову до змійки
-                field = fillFieldWithSnakeArray(field, snakeArray);//підчищаємо поле, занулюємо потрібн "пройдені" клітинки
-                field = randomApple(field);
-                appleCountTextBox.value = ++appleCount;
-            }
-            else {// не має яблучка
-                field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
-                head = field[newIndexInField];//ця точка буде головою
-                //зсув змійки
-                snakeArray.push(head);//додали в кінець голову
-                snakeArray.shift();//видалили перший елемент із змійки
-                field = fillFieldWithSnakeArray(field, snakeArray);
-            }
-        }
-        //return field;
+
+        // // if (key === previosKey) {
+        // //     console.log("Ignored key press");
+        // //     return field;
+        // // }
+
+        // // previosKey = key;
+
+        // //вернемо індекс точки  у полі, яка співпаде із новою позицією, куди треба переміститись
+        // const newIndexInField = field.findIndex(point =>
+        //     point.x === newPosX && point.y === newPosY
+        // );
+
+        // gameOverRule(currentSnakeDirection, snakeArray);
+
+        // if (newIndexInField !== -1) {//якщо знайдено індекс нової голови?
+        //     //якщо є яблучко там де маємо поставити нову голову
+        //     if (field[newIndexInField].value === -1) {
+        //         field[newIndexInField].value = 1;//можна і без цього, але тоді head.value = -1 - це не важливо бо у fill все рівно перетурться в 1 всі точки у полі як є в іsnakeArra
+        //         //gameOverRule(currentSnakeDirection,snakeArray);
+        //         head = field[newIndexInField];//голова буде точкою із яблучком (по факту value голови буде -1, але у функції fill всі значення що snake у field будуть в 1 - нас цікавить по факту x та y)
+        //         snakeArray.push(head);//додаємо голову до змійки
+        //         field = fillFieldWithSnakeArray(field, snakeArray);//підчищаємо поле, занулюємо потрібн "пройдені" клітинки
+        //         field = randomApple(field);
+        //         appleCountTextBox.value = ++appleCount;
+        //     }
+        //     else {// не має яблучка
+        //         field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
+        //         head = field[newIndexInField];//ця точка буде головою
+        //         //зсув змійки
+        //         snakeArray.push(head);//додали в кінець голову
+        //         snakeArray.shift();//видалили перший елемент із змійки
+        //         field = fillFieldWithSnakeArray(field, snakeArray);
+        //     }
+        // }
+        return field;
     };
 }
 
@@ -725,73 +741,9 @@ function moveForOnePointByHuman(field, directionForMove) {
     return field;
 }
 
-//зсув змійки (яка складається із декількох клітинок) це  snakeArray.push(head); і snakeArray.shift();
-
-
-
-// function fillFieldAccordingToSnakeArray(field, snaheArr) {
-//     let res = field.map(cell => {
-//         let found = false;
-//         snaheArr.forEach(element => {
-//             if (cell.x === element.x && cell.y === element.y) {
-//                 console.log(cell.x + '' + cell.y);
-//                 found = true;
-//             }
-//         });
-//         if (found) {
-//             cell.value = 1;
-//         }
-//         return cell;
-//     });
-//     return res;
-// }
 
 
 function fillFieldWithSnakeArray(field, snakeArr) {
-    // changedField = field.map(item => {
-    //     let found = false;
-    //     snakeArr.forEach(el => {
-    //         if (el.x === item.x && el.y === item.y) {
-    //             found = true;
-    //         }
-    //     })
-    //     if (found) {
-    //         item.value = 1;
-    //     }
-    //     // else{
-    //     //     item.value = 0 ;
-    //     // }
-    //     return item;
-    // });
-
-    // field.forEach((item, index) => {
-    //     // let posOfApple;
-    //     // field.forEach(i=>{
-    //     //     if (i.value===-1){
-    //     //         posOfApple = i;
-    //     //     }
-    //     // })
-    //     if (snakeArr.some(el => el.x === item.x && el.y === item.y)) {
-    //         field[index].value = 1;
-    //     } else {
-    //         field[index].value = 0;
-    //     }
-
-    // });
-
-    // for (let i = 0; i < field.length; i++) {
-    //     //скидуємо комірки, які були встановлені в 1 (яблучка не чіпаємо)
-    //     if (field[i].value === 1 && field[i].value !== -1) {//якщо не яблуко к йбені матері всьо
-    //         field[i].value = 0;
-    //     }
-    //     for (let j = 0; j < snakeArr.length; j++) {
-    //         //всім коміркам які в sanke перенести на поле
-    //         if (snakeArr.some(el => el.x === field[i].x && el.y === field[i].y)) {
-    //             field[i].value = 1;
-    //         }
-    //     }
-    // }
-
     //змінюємо поле
     field.forEach(element => {
         //скидуємо комірки, які були встановлені в 1 (яблучка не чіпаємо)
@@ -814,7 +766,7 @@ function fillFieldWithSnakeArray(field, snakeArr) {
 document.addEventListener("keypress", (e) => {
     //  field = moveForOnePointByHuman(field, e.code);
     //  drawField(field);
-    keyHandler(e.code);
+    field = keyHandler(e.code, field);
     drawField(field);
 });
 
@@ -867,11 +819,13 @@ function callback() {
 
     // }
     //gameOverRule(currentSnakeDirection,snakeArray);
-    
-    
-    field = moveForOnePoint(field, currentSnakeDirection);
-    
-    //keyHandler(currentSnakeDirection);
+
+
+    //field = moveForOnePoint(field, currentSnakeDirection);
+
+    field = move(currentSnakeDirection,field);
+
+    //field = keyHandler(currentSnakeDirection,field);
     //console.log(currentSnakeDirection);
 
 
