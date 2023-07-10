@@ -351,11 +351,11 @@ function drawField(field) {
                 ctx.drawImage(apple, field[i].x * 20, field[i].y * 20, 20, 20);
             }
 
-            if (field[i].x === head.x && field[i].y === head.y){
+            if (field[i].x === head.x && field[i].y === head.y) {
                 ctx.fillStyle = "rgba(189, 2, 39, 1)";
                 ctx.fillRect(field[i].x * 20, field[i].y * 20, 20, 20);
             }
-            
+
 
         }
 
@@ -474,6 +474,14 @@ function moveForOnePoint(field, directionForMove) {
 
 
 function move(directionForMove, field) {
+    if ((head.forbiddenDirections.D === 'd' && directionForMove === 'KeyD') ||
+        (head.forbiddenDirections.A === 'a' && directionForMove === 'KeyA') ||
+        (head.forbiddenDirections.W === 'w' && directionForMove === 'KeyW') ||
+        (head.forbiddenDirections.S === 's' && directionForMove === 'KeyS')) {
+        whatToDoWhenGameOvere();
+        return field;
+    }
+
     let newPosX = head.x;
     let newPosY = head.y;
     // Виконуємо логіку для натиснутої клавіші
@@ -508,8 +516,6 @@ function move(directionForMove, field) {
         point.x === newPosX && point.y === newPosY
     );
 
-    gameOverRule(currentSnakeDirection, snakeArray);
-
     if (newIndexInField !== -1) {//якщо знайдено індекс нової голови?
         //якщо є яблучко там де маємо поставити нову голову
         if (field[newIndexInField].value === -1) {
@@ -522,6 +528,14 @@ function move(directionForMove, field) {
             appleCountTextBox.value = ++appleCount;
         }
         else {// не має яблучка
+            //дивимся чи наступна точка не сама змійка
+            if (field[newIndexInField].value === 1) {
+                console.log("11111111111111111");
+                whatToDoWhenGameOvere();
+                return field;
+            }
+
+
             field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
             head = field[newIndexInField];//ця точка буде головою
             //зсув змійки
@@ -547,14 +561,13 @@ function createKeyHandlerForHuman() {
 
         // Якщо клавіша була вже натиснута протягом 1 секунди, ігноруємо її
         if (keyStates[key] && Date.now() - keyStates[key] < 1000) {
-            console.log("aaaaaaaaaaaaaaa");
             currentSnakeDirection = key;
             return field;
         }
 
         keyStates[key] = Date.now();//записуємо поточний час, як значення властивлсті для кнопки
 
-        field = move(key,field);
+        field = move(key, field);
 
         // let newPosX = head.x;
         // let newPosY = head.y;
@@ -678,27 +691,32 @@ function whatToDoWhenGameOvere() {
 }
 
 function gameOverRule(currentDir, snakeArr) {
-    let curHead = snakeArr[0];
+    //let curHead = snakeArr[0];
+    //let IsGameOver = false;
 
     if ((head.forbiddenDirections.D === 'd' && currentDir === 'KeyD') ||
         (head.forbiddenDirections.A === 'a' && currentDir === 'KeyA') ||
         (head.forbiddenDirections.W === 'w' && currentDir === 'KeyW') ||
         (head.forbiddenDirections.S === 's' && currentDir === 'KeyS')) {
         whatToDoWhenGameOvere();
+        //IsGameOver = true;
     }
 
-    if (snakeArr.some((point, index) =>
-        curHead.x === point.x && curHead.y === point.y && index !== 0
-    )) {
-        whatToDoWhenGameOvere();
-    }
+    // if (snakeArr.some((point, index) =>
+    //     curHead.x === point.x && curHead.y === point.y && index !== 0
+    // )) {
+    //     console.log("trrrrrrrrrrrrrrrrrr");
+    //     whatToDoWhenGameOvere();
+    //     IsGameOver = true;
+    // }
+    //return IsGameOver;
 }
 
 
 function callback() {
     //field = moveForOnePoint(field, currentSnakeDirection);
 
-    field = move(currentSnakeDirection,field);
+    field = move(currentSnakeDirection, field);
 
     //field = keyHandler(currentSnakeDirection,field);
     //console.log(currentSnakeDirection);
