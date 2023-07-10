@@ -89,6 +89,9 @@ let appleCount = 0;
 
 let currentSnakeDirection = 'KeyD';
 
+let fieldWidth = canvas.width / 20;
+let fieldHeight = canvas.height / 20;
+
 // function draw() {
 //     // let canvas = document.getElementById("canva");
 //     if (canvas.getContext) {
@@ -190,12 +193,12 @@ class Point {
 function createEmptyField(width, height) {
     let field = [];
     const emptyMarker = 0;
-    let fieldWidth = width / 20;
-    let fieldHeight = height / 20;
+    // let fieldWidth = width / 20;
+    // let fieldHeight = height / 20;
     let curPoint;
 
-    for (let j = 0; j < fieldHeight; j++) {
-        for (let i = 0; i < fieldWidth; i++) {
+    for (let j = 0; j < height; j++) {
+        for (let i = 0; i < width; i++) {
             let forbDir = new ForbiddenDirections();
             if (j === 0) {
                 forbDir.W = "w";
@@ -227,7 +230,7 @@ function createEmptyField(width, height) {
 
     head = field[0];
 
-    //field[3].value = -1;
+
     field = randomApple(field);
 
 
@@ -273,7 +276,7 @@ function printPointValues(obj) {
 
 
 
-let field = createEmptyField(canvas.width, canvas.height);
+let field = createEmptyField(fieldWidth, fieldHeight);
 
 // field.forEach(item=>{
 //     console.log(printPointValues(item));
@@ -287,8 +290,8 @@ function checkIfAppleExistInField(field) {
 
 function randomApple(field) {
     while (true) {
-        let i = Math.floor(Math.random() * 5);
-        let j = Math.floor(Math.random() * 5);
+        let i = Math.floor(Math.random() * fieldWidth);
+        let j = Math.floor(Math.random() * fieldHeight);
 
         //перевіряємо не просто на якщо клітинка зайнята змійкою,
         //а на те, що ця клітинка вільна
@@ -355,25 +358,7 @@ function drawField(field) {
                 ctx.fillStyle = "rgba(189, 2, 39, 1)";
                 ctx.fillRect(field[i].x * 20, field[i].y * 20, 20, 20);
             }
-
-
         }
-
-        //по дефолту змійка в першій клітинці,
-        //грузимо при старті 
-        newImage.onload = () => {
-            // Draw the image onto the context
-            //ctx.drawImage(newImage, field[0].x*20, field[0].y*20, 20, 20);
-
-            //ctx.drawImage(apple, field[1].x*20, field[1].y*20, 20, 20);
-
-            //newImage.src = 'https://cdn2.iconfinder.com/data/icons/animals-92/28/animal_lineal_color-42-512.png';
-
-
-            //apple.src = 'https://www.iconpacks.net/icons/2/free-apple-icon-3155-thumb.png';
-
-        }
-
     }
 }
 
@@ -453,11 +438,8 @@ function moveForOnePoint(field, directionForMove) {
         else {// не має яблучка
             field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
 
-
-
             head = field[newIndexInField];//ця точка буде головою
             //зсув змійки
-
 
             snakeArray.push(head);//додали в кінець голову
             snakeArray.shift();//видалили перший елемент із змійки
@@ -481,6 +463,7 @@ function move(directionForMove, field) {
         whatToDoWhenGameOvere();
         return field;
     }
+    
 
     let newPosX = head.x;
     let newPosY = head.y;
@@ -524,17 +507,20 @@ function move(directionForMove, field) {
             head = field[newIndexInField];//голова буде точкою із яблучком (по факту value голови буде -1, але у функції fill всі значення що snake у field будуть в 1 - нас цікавить по факту x та y)
             snakeArray.push(head);//додаємо голову до змійки
             field = fillFieldWithSnakeArray(field, snakeArray);//підчищаємо поле, занулюємо потрібн "пройдені" клітинки
+            if (snakeArray.length === fieldHeight*fieldWidth){
+                whatToDoWhenGameOvere();
+                return field;
+            }
+            
             field = randomApple(field);
             appleCountTextBox.value = ++appleCount;
         }
         else {// не має яблучка
             //дивимся чи наступна точка не сама змійка
             if (field[newIndexInField].value === 1) {
-                console.log("11111111111111111");
                 whatToDoWhenGameOvere();
                 return field;
             }
-
 
             field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
             head = field[newIndexInField];//ця точка буде головою
@@ -549,15 +535,12 @@ function move(directionForMove, field) {
 
 }
 
-
-
-
+//замикання
 function createKeyHandlerForHuman() {
     const keyStates = {};//для збереження часу останнього натискання кожної клавіші
 
     return function (event, field) {
         const key = event;
-        //let previosKey;
 
         // Якщо клавіша була вже натиснута протягом 1 секунди, ігноруємо її
         if (keyStates[key] && Date.now() - keyStates[key] < 1000) {
@@ -567,74 +550,9 @@ function createKeyHandlerForHuman() {
 
         keyStates[key] = Date.now();//записуємо поточний час, як значення властивлсті для кнопки
 
+        //тепер можна рухатись
         field = move(key, field);
-
-        // let newPosX = head.x;
-        // let newPosY = head.y;
-
-        // // Виконуємо логіку для натиснутої клавіші
-        // switch (key) {
-        //     case 'KeyA':
-        //         // Логіка для клавіші A
-        //         newPosX = newPosX - 1;
-        //         currentSnakeDirection = 'KeyA';
-        //         console.log("A");
-        //         break;
-        //     case 'KeyW':
-        //         // Логіка для клавіші W
-        //         newPosY = newPosY - 1;
-        //         currentSnakeDirection = 'KeyW';
-        //         console.log("W");
-        //         break;
-        //     case 'KeyS':
-        //         // Логіка для клавіші S
-        //         newPosY = newPosY + 1;
-        //         currentSnakeDirection = 'KeyS';
-        //         console.log("S");
-        //         break;
-        //     case 'KeyD':
-        //         // Логіка для клавіші D
-        //         newPosX = newPosX + 1;
-        //         currentSnakeDirection = 'KeyD';
-        //         console.log("D");
-        //         break;
-        // }
-
-
-        // // if (key === previosKey) {
-        // //     console.log("Ignored key press");
-        // //     return field;
-        // // }
-
-        // // previosKey = key;
-
-        // //вернемо індекс точки  у полі, яка співпаде із новою позицією, куди треба переміститись
-        // const newIndexInField = field.findIndex(point =>
-        //     point.x === newPosX && point.y === newPosY
-        // );
-
-        // gameOverRule(currentSnakeDirection, snakeArray);
-
-        // if (newIndexInField !== -1) {//якщо знайдено індекс нової голови?
-        //     //якщо є яблучко там де маємо поставити нову голову
-        //     if (field[newIndexInField].value === -1) {
-        //         field[newIndexInField].value = 1;//можна і без цього, але тоді head.value = -1 - це не важливо бо у fill все рівно перетурться в 1 всі точки у полі як є в іsnakeArra
-        //         //gameOverRule(currentSnakeDirection,snakeArray);
-        //         head = field[newIndexInField];//голова буде точкою із яблучком (по факту value голови буде -1, але у функції fill всі значення що snake у field будуть в 1 - нас цікавить по факту x та y)
-        //         snakeArray.push(head);//додаємо голову до змійки
-        //         field = fillFieldWithSnakeArray(field, snakeArray);//підчищаємо поле, занулюємо потрібн "пройдені" клітинки
-        //         field = randomApple(field);
-        //         appleCountTextBox.value = ++appleCount;
-        //     }
-        //     else {// не має яблучка
-        //         field[newIndexInField].value = 1;//ставимо у нову точку, де нова голова 1
-        //         head = field[newIndexInField];//ця точка буде головою
-        //         //зсув змійки
-        //         snakeArray.push(head);//додали в кінець голову
-        //         snakeArray.shift();//видалили перший елемент із змійки
-        //         field = fillFieldWithSnakeArray(field, snakeArray);
-        //     }
-        // }
+        
         return field;
     };
 }
@@ -663,8 +581,6 @@ function fillFieldWithSnakeArray(field, snakeArr) {
 
 
 
-
-
 document.addEventListener("keypress", (e) => {
     //  field = moveForOnePointByHuman(field, e.code);
     //  drawField(field);
@@ -678,11 +594,8 @@ apple.onload = () => {
 
 
 
-
 const myInterval = setInterval(callback, 1000);
 //const startDirection = 'KeyD';
-
-
 
 
 function whatToDoWhenGameOvere() {
@@ -716,7 +629,7 @@ function gameOverRule(currentDir, snakeArr) {
 function callback() {
     //field = moveForOnePoint(field, currentSnakeDirection);
 
-    field = move(currentSnakeDirection, field);
+    //field = move(currentSnakeDirection, field);
 
     //field = keyHandler(currentSnakeDirection,field);
     //console.log(currentSnakeDirection);
@@ -725,17 +638,6 @@ function callback() {
     drawField(field);
 }
 
-
-
-
-
-
-
-
-
-
-
-//console.log(printPointValues(createEmptyField(100,100)[0]));
 
 
 
